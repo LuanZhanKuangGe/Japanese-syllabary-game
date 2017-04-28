@@ -166,7 +166,7 @@ function check(e) {
 		}
 	}
 }
-
+//计时
 function counter() {
 	DA.text = "用时 : " + CR + "  失误:" + ER;
 	CR += 1;
