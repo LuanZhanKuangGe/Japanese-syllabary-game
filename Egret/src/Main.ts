@@ -3,6 +3,28 @@
  * @author coderluan
  * @desc     
  */
+let S1: string[] = [
+    "あ", "い", "う", "え", "お",
+    "か", "き", "く", "け", "こ",
+    "さ", "し", "す", "せ", "そ",
+    "た", "ち", "つ", "て", "と",
+    "な", "に", "ぬ", "ね", "の",
+    "は", "ひ", "ふ", "へ", "ほ",
+    "ま", "み", "む", "め", "も",
+    "や", "ゆ", "よ", "ら", "り",
+    "る", "れ", "ろ", "わ", "を",
+    "ん"];
+let S2: string[] = [
+    "ア", "イ", "ウ", "エ", "オ",
+    "カ", "キ", "ク", "ケ", "コ",
+    "サ", "シ", "ス", "セ", "ソ",
+    "タ", "チ", "ツ", "テ", "ト",
+    "ナ", "ニ", "ヌ", "ネ", "ノ",
+    "ハ", "ヒ", "フ", "ヘ", "ホ",
+    "マ", "ミ", "ム", "メ", "モ",
+    "ヤ", "ユ", "ヨ", "ラ", "リ",
+    "ル", "レ", "ロ", "ワ", "ヲ",
+    "ン"];
 
 class Main extends egret.DisplayObjectContainer {
     constructor() {
@@ -10,14 +32,19 @@ class Main extends egret.DisplayObjectContainer {
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
 
+    private status: boolean = false;
+    private count: number = 0;
+    private score: number = 300;
+    private label1: number = -1;
+    private label2: number = -1;
+    private info: egret.TextField = new egret.TextField();
+
     private onAddToStage(event: egret.Event) {
-        var imgLoader: egret.ImageLoader = new egret.ImageLoader;
-        imgLoader.once(egret.Event.COMPLETE, this.initGame, this);
-        imgLoader.load("resource/assets/cartoon-egret_00.png");
+        this.initGame();
     }
 
     //初始化赋值
-    private initGame(evt: egret.Event): void {
+    private initGame(): void {
         let background: egret.Shape = new egret.Shape();
         this.addChild(background);
 
@@ -32,11 +59,15 @@ class Main extends egret.DisplayObjectContainer {
 
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 4; y++) {
-                let i = y * 8 + x;
-                background.graphics.beginFill(0x000000, 0);
-                background.graphics.lineStyle(2, 0xffffff);
-                background.graphics.drawRect(130 + x * 100, 80 + y * 100, 80, 80);
-                background.graphics.endFill();
+                let button: egret.Sprite = new egret.Sprite();
+                this.addChild(button);
+                button.name = "b" + String(y * 8 + x);
+                button.graphics.beginFill(0x000000, 0);
+                button.graphics.lineStyle(2, 0xffffff);
+                button.graphics.drawRect(140 + x * 100, 80 + y * 100, 80, 80);
+                button.graphics.endFill();
+                button.touchEnabled = true;
+                button.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) { this.judgeNumber(e, button.name); }, this);
             }
         }
 
@@ -49,13 +80,26 @@ class Main extends egret.DisplayObjectContainer {
         title.x = 55;
         title.y = 80;
 
-        let bmd: egret.BitmapData = evt.currentTarget.data;
-        let bird: egret.Bitmap = new egret.Bitmap(bmd);
-        bird.width = 40;
-        bird.height = 60;
-        bird.x = 55;
-        bird.y = 380;
-        this.addChild(bird);
+        let button: egret.Sprite = new egret.Sprite();
+        this.addChild(button);
+        button.graphics.beginFill(0x000000, 0);
+        button.graphics.lineStyle(2, 0xffffff);
+        button.graphics.drawRect(40, 380, 80, 80);
+        button.graphics.endFill();
+        button.touchEnabled = true;
+        this.info.addEventListener(egret.TouchEvent.TOUCH_TAP, this.startGame, this);
+
+        this.addChild(this.info);
+        this.info.text = "点我开始"
+        this.info.size = 35;
+        this.info.width = 80;
+        this.info.height = 80;
+        this.info.anchorOffsetX = this.info.width / 2;
+        this.info.anchorOffsetY = this.info.height / 2;
+        this.info.x = 85;
+        this.info.y = 425;
+        this.info.touchEnabled = true;
+        this.info.addEventListener(egret.TouchEvent.TOUCH_TAP, this.startGame, this);
 
         let copyright: egret.TextField = new egret.TextField();
         this.addChild(copyright);
@@ -69,6 +113,81 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private startGame(): void {
+        let data: string[] = this.getData();
+        if (this.status == false) {
+            for (let x = 0; x < 8; x++) {
+                for (let y = 0; y < 4; y++) {
+                    let label: egret.TextField = new egret.TextField();
+                    this.addChild(label);
+                    label.text = data[y * 8 + x];
+                    label.name = "l" + String(y * 8 + x);
+                    label.size = 40;
+                    label.x = 180 + x * 100;
+                    label.y = 120 + y * 100;
+                    label.anchorOffsetX = label.width / 2;
+                    label.anchorOffsetY = label.height / 2;
+                    label.touchEnabled = true;
+                    label.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) { this.judgeNumber(e, label.name); }, this);
+                }
+            }
 
+            let timer: egret.Timer = new egret.Timer(1000, 0);
+            timer.addEventListener(egret.TimerEvent.TIMER, function () {
+                if (this.status == true) {
+                    this.info.text = "分数" + String(this.score);
+                    this.score--;
+                }
+            }, this);
+            timer.start();
+        }
+        this.status = true;
+    }
+
+    private judgeNumber(evt: egret.TouchEvent, name): void {
+        let id: number = Number(name.substring(1));
+        if (this.status == true) {
+            if (this.label1 == -1) {
+                this.label1 = id;
+                (<egret.TextField>this.getChildByName(String("l" + this.label1))).textColor = 0xff0000;
+            }
+            else {
+                this.label2 = id;
+                let text1: string = (<egret.TextField>this.getChildByName(String("l" + this.label1))).text;
+                let text2: string = (<egret.TextField>this.getChildByName(String("l" + this.label2))).text;
+                if ((S1.indexOf(text1) != -1) && (S1.indexOf(text1) == S2.indexOf(text2))
+                    || (S1.indexOf(text1) == -1) && (S1.indexOf(text2) == S2.indexOf(text1))) {
+                    (<egret.TextField>this.getChildByName(String("l" + this.label2))).textColor = 0xff0000;
+                    this.count += 1;
+                    if (this.count == 16) {
+                        this.status = false;
+                    }
+                }
+                else {
+                    (<egret.TextField>this.getChildByName(String("l" + this.label1))).textColor = 0xffffff;
+                    (<egret.TextField>this.getChildByName(String("l" + this.label2))).textColor = 0xffffff;
+                    this.score -= 5;
+                }
+                this.label1 = -1;
+            }
+        }
+    }
+
+    private getData(): string[] {
+        let id: number[] = [];
+        let ts: string[] = [];
+        for (let i = 0; i < S1.length; i++) {
+            id[i] = i;
+        }
+        id.sort(function () {
+            return 0.5 - Math.random()
+        })
+        for (let i = 0; i < 16; i++) {
+            ts[i] = S1[id[i]];
+            ts[i + 16] = S2[id[i]];
+        }
+        ts.sort(function () {
+            return 0.5 - Math.random()
+        })
+        return ts;
     }
 }
