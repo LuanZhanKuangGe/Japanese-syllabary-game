@@ -1,8 +1,9 @@
-/**
+/** 
  * @copyright www.coderluan.com
  * @author coderluan
- * @desc     
- */
+ * @desc 日语五十音图对对碰小游戏
+*/
+
 let S1: string[] = [
     "あ", "い", "う", "え", "お",
     "か", "き", "く", "け", "こ",
@@ -27,9 +28,75 @@ let S2: string[] = [
     "ン"];
 
 class Main extends egret.DisplayObjectContainer {
-    constructor() {
+
+    private loadingView: LoadingUI;
+
+    public constructor() {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
+    }
+
+    private onAddToStage(event: egret.Event) {
+        this.loadingView = new LoadingUI();
+        this.stage.addChild(this.loadingView);
+
+        RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+        RES.loadConfig("resource/default.res.json", "resource/");
+    }
+
+    private onConfigComplete(event: RES.ResourceEvent): void {
+        RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+        RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
+        RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
+        RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+        RES.addEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
+        RES.loadGroup("preload");
+    }
+
+    private onResourceLoadComplete(event: RES.ResourceEvent) {
+        if (event.groupName == "preload") {
+            this.stage.removeChild(this.loadingView);
+            RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
+            RES.removeEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
+            RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+            RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
+            this.createGameScene();
+        }
+    }
+
+    private onItemLoadError(event: RES.ResourceEvent) {
+        console.warn("Url:" + event.resItem.url + " has failed to load");
+    }
+
+    private onResourceLoadError(event: RES.ResourceEvent) {
+        console.warn("Group:" + event.groupName + " has failed to load");
+        this.onResourceLoadComplete(event);
+    }
+
+    private onResourceProgress(event: RES.ResourceEvent) {
+        if (event.groupName == "preload") {
+            this.loadingView.setProgress(event.itemsLoaded, event.itemsTotal);
+        }
+    }
+
+    private textfield: egret.TextField;
+
+    private createGameScene() {
+
+        //发布APP时，在wing里修改屏幕横竖模式没有作用
+        //要在发布的时候生成的android项目里找到AndroidManifest.xml文件
+        //修改android:screenOrientation="landscape"
+        this.stage.orientation = egret.OrientationMode.LANDSCAPE;
+        this.stage.scaleMode = egret.StageScaleMode.SHOW_ALL;
+       
+        let background = new egret.Bitmap();
+        let texture: egret.Texture = RES.getRes("bg_jpg");
+        background.texture = texture;
+        this.addChild(background);
+        background.width = this.stage.stageWidth;
+        background.height = this.stage.stageHeight;
+
+        this.initGame();
     }
 
     private status: boolean = false;
@@ -39,16 +106,11 @@ class Main extends egret.DisplayObjectContainer {
     private label2: number = -1;
     private info: egret.TextField = new egret.TextField();
 
-    private onAddToStage(event: egret.Event) {
-        this.initGame();
-    }
-
-    //初始化赋值
     private initGame(): void {
         let background: egret.Shape = new egret.Shape();
         this.addChild(background);
 
-        background.graphics.beginFill(0x000000, 0.8);
+        background.graphics.beginFill(0x000000, 1);
         background.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageHeight);
         background.graphics.endFill();
 
@@ -189,5 +251,7 @@ class Main extends egret.DisplayObjectContainer {
             return 0.5 - Math.random()
         })
         return ts;
-    }
+    }    
 }
+
+
