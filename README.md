@@ -1,12 +1,20 @@
-# Japanese-syllabary-game
+# 五十音图对对碰 JapaneseSyllabaryGame
 
-This is a Japanese syllabary game created using LayaAir H5 game engine.
-使用LayaAir H5游戏引擎制作的日语《五十音图连连》看小游戏。
+This is a Japanese syllabary game created using Laya and Egret H5 game engine.
+使用H5游戏引擎制作的日语《五十音图对对碰》小游戏。
 
-# 效果图
+# 效果图 Preview image
 
-![Japanese-syllabary-game](http://www.coderluan.com/wp-content/uploads/2017/04/linkgame.png)
+Laya
 
-# 在线演示
+![JapaneseSyllabaryGame](http://www.coderluan.com/wp-content/uploads/2017/04/linkgame.png)
 
-[ONLINE_DEMO](http://www.coderluan.com/game/Japanese-syllabary-game/)
+Egret
+
+![JapaneseSyllabaryGame](http://www.coderluan.com/wp-content/uploads/2017/04/linkgame.png)
+
+# 在线演示 Online Demo
+
+[Laya](http://www.coderluan.com/game/JapaneseSyllabaryGame/Laya/)
+
+[Egret](http://www.coderluan.com/game/JapaneseSyllabaryGame/Laya/)
